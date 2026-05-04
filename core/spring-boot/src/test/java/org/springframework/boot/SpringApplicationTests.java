@@ -49,6 +49,7 @@ import org.springframework.aot.AotDetector;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanCurrentlyInCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.BeanRegistrar;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +101,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -1137,6 +1139,21 @@ class SpringApplicationTests {
 	void beanDefinitionOverridingIsDisabledByDefault() {
 		assertThatExceptionOfType(BeanDefinitionOverrideException.class)
 			.isThrownBy(() -> new SpringApplication(ExampleConfig.class, OverrideConfig.class).run());
+	}
+
+	@Test
+	void beanDefinitionOverridingIsAppliedToInitializer() { // gh-50264
+		assertThatExceptionOfType(BeanDefinitionOverrideException.class).isThrownBy(() -> {
+			BeanRegistrar registrar = (registry, env) -> {
+				registry.registerBean("someBean", String.class);
+				registry.registerBean("someBean", String.class);
+			};
+			ApplicationContextInitializer<GenericApplicationContext> initializer = (context) -> context
+				.register(registrar);
+			SpringApplication application = new SpringApplication(Example.class);
+			application.setInitializers(List.of(initializer));
+			application.run();
+		});
 	}
 
 	@Test
