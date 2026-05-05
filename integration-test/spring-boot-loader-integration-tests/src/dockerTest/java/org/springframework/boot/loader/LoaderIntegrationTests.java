@@ -85,6 +85,17 @@ class LoaderIntegrationTests {
 		}
 	}
 
+	@ParameterizedTest
+	@MethodSource("javaRuntimes")
+	void runSignedJarWhenRsa(JavaRuntime javaRuntime) {
+		try (GenericContainer<?> container = createContainer(javaRuntime, "spring-boot-loader-tests-signed-jar-rsa",
+				null)) {
+			container.start();
+			System.out.println(this.output.toUtf8String());
+			assertThat(this.output.toUtf8String()).contains("Legion of the Bouncy Castle");
+		}
+	}
+
 	private GenericContainer<?> createContainer(JavaRuntime javaRuntime, String name, String classifier) {
 		return javaRuntime.getContainer()
 			.withLogConsumer(this.output)

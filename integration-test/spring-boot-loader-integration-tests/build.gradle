@@ -70,6 +70,19 @@ tasks.register("buildSignedJarApp", GradleBuild) {
 	tasks  = ["build"]
 }
 
+tasks.register("syncSignedJarRsaAppSource", org.springframework.boot.build.SyncAppSource) {
+	sourceDirectory = file("spring-boot-loader-tests-signed-jar-rsa")
+	destinationDirectory = file(layout.buildDirectory.dir("spring-boot-loader-tests-signed-jar-rsa"))
+}
+
+tasks.register("buildSignedJarRsaApp", GradleBuild) {
+	dependsOn syncSignedJarRsaAppSource, syncMavenRepository
+	dir = layout.buildDirectory.dir("spring-boot-loader-tests-signed-jar-rsa")
+	startParameter.buildCacheEnabled = false
+	tasks  = ["build"]
+}
+
+
 tasks.register("downloadJdk", Download) {
 	def destFolder = new File(project.gradle.gradleUserHomeDir, "caches/springboot/downloads/jdk/oracle")
 	destFolder.mkdirs()
@@ -92,5 +105,5 @@ tasks.named("processDockerTestResources").configure {
 }
 
 tasks.named("dockerTest").configure {
-	dependsOn buildApp, buildSignedJarApp
+	dependsOn buildApp, buildSignedJarApp, buildSignedJarRsaApp
 }
