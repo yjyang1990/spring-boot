@@ -381,6 +381,42 @@ class ZipContentTests {
 		}
 	}
 
+	@Test
+	void detectUnsigned() throws Exception {
+		File file = new File(this.tempDir, "testunsigned.jar");
+		TestJar.create(file);
+		try (ZipContent zip = ZipContent.open(this.file.toPath())) {
+			assertThat(zip.hasJarSignatureFile()).isFalse();
+		}
+	}
+
+	@Test
+	void detectSignedWithDsaFile() throws Exception {
+		File file = new File(this.tempDir, "testsigned.jar");
+		TestJar.create(file, false, "DSA");
+		try (ZipContent zip = ZipContent.open(file.toPath())) {
+			assertThat(zip.hasJarSignatureFile()).isTrue();
+		}
+	}
+
+	@Test
+	void detectSignedWithRsaFile() throws Exception {
+		File file = new File(this.tempDir, "testsigned.jar");
+		TestJar.create(file, false, "RSA");
+		try (ZipContent zip = ZipContent.open(file.toPath())) {
+			assertThat(zip.hasJarSignatureFile()).isTrue();
+		}
+	}
+
+	@Test
+	void detectSignedWithEcFile() throws Exception {
+		File file = new File(this.tempDir, "testsigned.jar");
+		TestJar.create(file, false, "EC");
+		try (ZipContent zip = ZipContent.open(file.toPath())) {
+			assertThat(zip.hasJarSignatureFile()).isTrue();
+		}
+	}
+
 	private File createZipFileWithEpochTimeOfZero() throws Exception {
 		File file = new File(this.tempDir, "temp.zip");
 		String comment = "outer";

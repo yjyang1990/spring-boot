@@ -44,16 +44,16 @@ public abstract class TestJar {
 	}
 
 	public static void create(File file, boolean unpackNested) throws Exception {
-		create(file, unpackNested, false);
+		create(file, unpackNested, null);
 	}
 
-	public static void create(File file, boolean unpackNested, boolean addSignatureFile) throws Exception {
+	public static void create(File file, boolean unpackNested, String additionalSignedFileExtension) throws Exception {
 		FileOutputStream fileOutputStream = new FileOutputStream(file);
 		try (JarOutputStream jarOutputStream = new JarOutputStream(fileOutputStream)) {
 			jarOutputStream.setComment("outer");
 			writeManifest(jarOutputStream, "j1");
-			if (addSignatureFile) {
-				writeEntry(jarOutputStream, "META-INF/some.DSA", 0);
+			if (additionalSignedFileExtension != null) {
+				writeEntry(jarOutputStream, "META-INF/some." + additionalSignedFileExtension, 0);
 			}
 			writeEntry(jarOutputStream, "1.dat", 1);
 			writeEntry(jarOutputStream, "2.dat", 2);
